@@ -1,7 +1,5 @@
 """
-@author: Lucas Santos
 @created_at: 03/06
-
 Esta é a versão que funciona da MLP para o Dataset Sundanese Tweeter Dataset
 Utilizando tanto as stopwords quando o CSV fornecido
 """
@@ -76,4 +74,5 @@ previsoes = modelo_carregado.predict(novas_features)
 
 # Imprimir as previsões
 for frase, previsao in zip(novas_frases, previsoes):
-    print(f"Frase: {frase}\nPrevisão: {previsao}")
+    # print(f"Frase: {frase}\nPrevisão: {previsao}")
+    print(f"Previsão: {previsao} | Frase: {frase}")
