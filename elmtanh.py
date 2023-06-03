@@ -79,6 +79,25 @@ def buildELM(train_features, test_features, train_targets, test_targets, label_e
     # Converter as previsões para as classes originais
     predicted_classes = label_encoder.inverse_transform(np.argmax(predictions, axis=1))
 
+    # Calcular métricas
+    accuracy = metrics.accuracy_score(test_targets, predicted_classes)
+    precision = metrics.precision_score(test_targets, predicted_classes, average='weighted')
+    recall = metrics.recall_score(test_targets, predicted_classes, average='weighted')
+    f1_score = metrics.f1_score(test_targets, predicted_classes, average='weighted')
+    confusion_matrix = metrics.confusion_matrix(test_targets, predicted_classes)
+    classification_report = metrics.classification_report(test_targets, predicted_classes)
+
+    # Imprimir métricas
+    print("Accuracy:", accuracy)
+    print("Precision:", precision)
+    print("Recall:", recall)
+    print("F1-Score:", f1_score)
+    print("Confusion Matrix:")
+    print(confusion_matrix)
+    print("Classification Report:")
+    print(classification_report)
+
+
     score = np.round(metrics.accuracy_score(test_targets, predicted_classes), 2)
     print("Mean accuracy of predictions: " + str(score))
     print("Salvando o modelo...")
@@ -102,24 +121,20 @@ buildELM(train_features, test_features, train_targets, test_targets, label_encod
 with open('modelo_elm.pkl', 'rb') as file:
     elm = pickle.load(file)
 
-new_phrases = [
-    "sok geura leungit atuh sia teh corona, matak gelo yeuh aing unggal poe gogoleran",
-    "Nu katoel katuhu nu nyerina kenca, goblog wasitna",
-    "Bingah pisan patepang sareng pangerasa. Sing katampi kalayan pinuh midulur...",
-    "asa hariwang kieu.. lalakon hirup teh asa nyorangan.. asa ieu mah..",
-    "Orang mana sih anying, sampis pisan. Bunuh ae lah bunuh"
-]
 # correct_predictions = ['anger', 'anger', 'joy', 'fear', 'anger']
 # predictions = ['anger', 'anger', 'sadness', 'joy', 'anger']
+data = pd.read_csv('test.csv')
+# Extrair colunas relevantes
+novas_frases = data['tweet'].tolist()
 
-new_features = vectorizer.transform(new_phrases).toarray()
+new_features = vectorizer.transform(novas_frases).toarray()
 
 
 predictions = elm.predict(new_features)
 
 predicted_classes = label_encoder.inverse_transform(np.argmax(predictions, axis=1))
 
-for phrase, predicted_class in zip(new_phrases, predicted_classes):
+for phrase, predicted_class in zip(novas_frases, predicted_classes):
     print(f"Previsão: {predicted_class} | Frase: {phrase}")
     # print("Frase:", phrase)
     # print("Previsão:", predicted_class)
