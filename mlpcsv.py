@@ -57,14 +57,12 @@ print("Carregando o modelo para testar...")
 with open('modelo.pkl', 'rb') as file:
     modelo_carregado = pickle.load(file)
 
-novas_frases = [
-    "sok geura leungit atuh sia teh corona, matak gelo yeuh aing unggal poe gogoleran",
-    "Nu katoel katuhu nu nyerina kenca, goblog wasitna",
-    "Bingah pisan patepang sareng pangerasa. Sing katampi kalayan pinuh midulur...",
-    "asa hariwang kieu.. lalakon hirup teh asa nyorangan.. asa ieu mah..",
-    "Orang mana sih anying, sampis pisan. Bunuh ae lah bunuh"
-]
+data = pd.read_csv('test.csv')
+# Extrair colunas relevantes
+novas_frases = data['tweet'].tolist()
+test_targets = data['label'].tolist()
 
+new_features = vectorizer.transform(novas_frases).toarray()
 
 # Realizar a vetorização das novas frases
 novas_features = vectorizer.transform(novas_frases)
@@ -72,7 +70,46 @@ novas_features = vectorizer.transform(novas_frases)
 # Fazer previsões usando o modelo carregado
 previsoes = modelo_carregado.predict(novas_features)
 
+# Calcular métricas
+accuracy = metrics.accuracy_score(test_targets, previsoes)
+precision = metrics.precision_score(test_targets, previsoes, average='weighted', zero_division=0)
+recall = metrics.recall_score(test_targets, previsoes, average='weighted', zero_division=0)
+f1_score = metrics.f1_score(test_targets, previsoes, average='macro')
+confusion_matrix = metrics.confusion_matrix(test_targets, previsoes)
+
+
+# Imprimir as métricas
+print("Accuracy:", accuracy)
+print("Precision:", precision)
+print("Recall:", recall)
+print("F1 Score:", f1_score)
+print("Confusion Matrix:")
+print(confusion_matrix)
+
 # Imprimir as previsões
 for frase, previsao in zip(novas_frases, previsoes):
     # print(f"Frase: {frase}\nPrevisão: {previsao}")
     print(f"Previsão: {previsao} | Frase: {frase}")
+
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Calcular a matriz de confusão
+confusion = metrics.confusion_matrix(test_targets, previsoes)
+
+# Plotar a matriz de confusão
+plt.figure(figsize=(8, 6))
+sns.heatmap(confusion, annot=True, fmt='d', cmap='Blues')
+plt.xlabel('Predicted')
+plt.ylabel('True')
+plt.title('Confusion Matrix')
+plt.show()
+
+# Plotar a distribuição das classes
+plt.figure(figsize=(8, 6))
+sns.countplot(x=train_targets, palette='viridis')
+plt.xlabel('Class')
+plt.ylabel('Count')
+plt.title('Class Distribution')
+plt.show()
